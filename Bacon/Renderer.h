@@ -11,12 +11,15 @@ public:
 
 	void Init();
 	void Render();
+	void Update();
+	void Destroy();
 
 protected:
 	void InitAPI();
 	void InitSwapChain();
 	void InitFrameBuffer();
 	void InitPipeline();
+	void LoadAssets();
 
 private:
 	HWND mHwnd;

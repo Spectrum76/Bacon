@@ -19,6 +19,38 @@ Renderer::Renderer(HWND hwnd) : mHwnd(hwnd)
 
 Renderer::~Renderer()
 {
+	Destroy();
+}
+
+void Renderer::Init()
+{
+	InitAPI();
+	InitSwapChain();
+	InitFrameBuffer();
+	InitPipeline();
+	LoadAssets();
+}
+
+void Renderer::Render()
+{
+	mDeviceContext->RSSetViewports(1, &mViewport);
+
+	mDeviceContext->OMSetRenderTargets(1, &mRTV, mDSView);
+	mDeviceContext->OMSetDepthStencilState(mDSState, 1);
+
+	const float clearColor[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	mDeviceContext->ClearRenderTargetView(mRTV, clearColor);
+	mDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	mSwapchain->Present(1, 0);
+}
+
+void Renderer::Update()
+{
+}
+
+void Renderer::Destroy()
+{
 	mInputLayout->Release();
 	mRasterState->Release();
 	mSamplerState->Release();
@@ -39,28 +71,6 @@ Renderer::~Renderer()
 	mDevice->Release();
 
 	mFactory->Release();
-}
-
-void Renderer::Init()
-{
-	InitAPI();
-	InitSwapChain();
-	InitFrameBuffer();
-	InitPipeline();
-}
-
-void Renderer::Render()
-{
-	mDeviceContext->RSSetViewports(1, &mViewport);
-
-	mDeviceContext->OMSetRenderTargets(1, &mRTV, mDSView);
-	mDeviceContext->OMSetDepthStencilState(mDSState, 1);
-
-	const float clearColor[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRTV, clearColor);
-	mDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	mSwapchain->Present(1, 0);
 }
 
 void Renderer::InitAPI()
@@ -162,4 +172,8 @@ void Renderer::InitPipeline()
 	mDevice->CreateSamplerState(&samplerDesc, &mSamplerState);
 	mDevice->CreateRasterizerState(&rasterDesc, &mRasterState);
 	mDevice->CreateInputLayout(inputElementDescs, _countof(inputElementDescs), VSBytecode.data(), VSBytecode.size(), &mInputLayout);
+}
+
+void Renderer::LoadAssets()
+{
 }
