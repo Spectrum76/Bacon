@@ -3,7 +3,22 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <chrono>
+
 #include "Renderer.h"
+
+bool Keys[255];
+
+double lastX;
+double lastY;
+
+double xChange;
+double yChange;
+
+bool mouseFirstMoved = true;
+
+double deltaTime = 0.0f;
+double lastTime = 0.0f;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -66,6 +81,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
+
+	case WM_KEYDOWN:
+		Keys[wParam] = true;
+		break;
+
+	case WM_KEYUP:
+		Keys[wParam] = false;
+		break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
