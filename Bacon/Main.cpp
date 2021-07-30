@@ -7,6 +7,9 @@
 
 #include "Renderer.h"
 
+#define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
+
 bool Keys[255];
 
 double lastX;
@@ -89,6 +92,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 		Keys[wParam] = false;
 		break;
+
+	case WM_MOUSEMOVE:
+		int xPos = GET_X_LPARAM(lParam);
+		int yPos = GET_Y_LPARAM(lParam);
+
+		if (mouseFirstMoved)
+		{
+			lastX = xPos;
+			lastY = yPos;
+			mouseFirstMoved = false;
+		}
+
+		xChange = xPos - lastX;
+		yChange = lastY - yPos;
+
+		lastX = xPos;
+		lastY = yPos;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
