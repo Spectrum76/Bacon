@@ -7,6 +7,8 @@
 
 #include "Renderer.h"
 
+using namespace std::chrono;
+
 #define GET_X_LPARAM(lp) ((int)(short)LOWORD(lp))
 #define GET_Y_LPARAM(lp) ((int)(short)HIWORD(lp))
 
@@ -70,6 +72,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		}
 		else
 		{
+			auto now = high_resolution_clock::now().time_since_epoch();
+			deltaTime = duration_cast<seconds>(now).count() - lastTime;
+			lastTime = (double)duration_cast<seconds>(now).count();
+
 			renderer.Render();
 		}
 	}

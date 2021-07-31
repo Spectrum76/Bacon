@@ -9,6 +9,9 @@ Model::Model(ID3D11Device* device, ID3D11DeviceContext* context) : mDeviceRef(de
 
 	mData.FModel = glm::mat4(1.0f);
 	mData.iModel = glm::mat4(1.0f);
+
+	CreateUBO();
+	Update();
 }
 
 Model::~Model()
