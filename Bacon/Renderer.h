@@ -14,12 +14,14 @@ public:
 	void Update();
 	void Destroy();
 
+	ID3D11Device* GetDevice();
+	ID3D11DeviceContext* GetContext();
+
 protected:
 	void InitAPI();
 	void InitSwapChain();
 	void InitFrameBuffer();
 	void InitPipeline();
-	void LoadAssets();
 
 private:
 	HWND mHwnd;

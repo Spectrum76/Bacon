@@ -28,12 +28,19 @@ void Renderer::Init()
 	InitSwapChain();
 	InitFrameBuffer();
 	InitPipeline();
-	LoadAssets();
 }
 
 void Renderer::Render()
 {
+	mDeviceContext->VSSetShader(mVertexShader, 0, 0);
+	mDeviceContext->PSSetShader(mPixelShader, 0, 0);
+	mDeviceContext->PSSetSamplers(0, 1, &mSamplerState);
+
+	mDeviceContext->IASetInputLayout(mInputLayout);
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	mDeviceContext->RSSetViewports(1, &mViewport);
+	mDeviceContext->RSSetState(mRasterState);
 
 	mDeviceContext->OMSetRenderTargets(1, &mRTV, mDSView);
 	mDeviceContext->OMSetDepthStencilState(mDSState, 1);
@@ -41,12 +48,11 @@ void Renderer::Render()
 	const float clearColor[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRTV, clearColor);
 	mDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	mSwapchain->Present(1, 0);
 }
 
 void Renderer::Update()
 {
+	mSwapchain->Present(0, 0);
 }
 
 void Renderer::Destroy()
@@ -71,6 +77,16 @@ void Renderer::Destroy()
 	mDevice->Release();
 
 	mFactory->Release();
+}
+
+ID3D11Device* Renderer::GetDevice()
+{
+	return mDevice;
+}
+
+ID3D11DeviceContext* Renderer::GetContext()
+{
+	return mDeviceContext;
 }
 
 void Renderer::InitAPI()
@@ -172,8 +188,4 @@ void Renderer::InitPipeline()
 	mDevice->CreateSamplerState(&samplerDesc, &mSamplerState);
 	mDevice->CreateRasterizerState(&rasterDesc, &mRasterState);
 	mDevice->CreateInputLayout(inputElementDescs, _countof(inputElementDescs), VSBytecode.data(), VSBytecode.size(), &mInputLayout);
-}
-
-void Renderer::LoadAssets()
-{
 }

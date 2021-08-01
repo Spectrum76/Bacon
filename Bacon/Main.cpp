@@ -6,6 +6,8 @@
 #include <chrono>
 
 #include "Renderer.h"
+#include "Camera.h"
+#include "Model.h"
 
 using namespace std::chrono;
 
@@ -62,6 +64,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 
 	renderer.Init();
 
+	Model cube = Model(renderer.GetDevice(), renderer.GetContext());
+	Camera camera = Camera(hwnd, renderer.GetDevice(), renderer.GetContext());
+
+	cube.Load("cube.obj");
+
 	MSG msg = {};
 	while (msg.message != WM_QUIT)
 	{
@@ -72,11 +79,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		}
 		else
 		{
-			auto now = high_resolution_clock::now().time_since_epoch();
-			deltaTime = duration_cast<seconds>(now).count() - lastTime;
-			lastTime = (double)duration_cast<seconds>(now).count();
+			auto before = std::chrono::high_resolution_clock::now();
+
+			camera.KeyControl(Keys, (float)deltaTime);
+			camera.MouseControl((float)xChange, (float)yChange);
+
+			xChange = 0.0f;
+			yChange = 0.0f;
+
+			camera.CalculateViewMatrix();
 
 			renderer.Render();
+
+			camera.Bind();
+
+			cube.Draw();
+
+			renderer.Update();
+
+			auto after = std::chrono::high_resolution_clock::now();
+
+			auto duration = std::chrono::duration_cast<std::chrono::microseconds>(after - before);
+			deltaTime = (float)duration.count() / 1000000.0f;
 		}
 	}
 
