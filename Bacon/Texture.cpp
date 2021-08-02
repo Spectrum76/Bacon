@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include <stdexcept>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -17,10 +19,14 @@ Texture::~Texture()
 
 void Texture::Init(std::string filepath)
 {
+	if (filepath.empty()) { return; }
+
 	int TextureWidth;
 	int TextureHeight;
 	int TextureChannel;
 	unsigned char* Pixels = stbi_load(filepath.c_str(), &TextureWidth, &TextureHeight, &TextureChannel, STBI_rgb_alpha);
+
+	if (!Pixels) { throw std::runtime_error("STB Failed!"); }
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Width = TextureWidth;
@@ -49,6 +55,14 @@ void Texture::Init(std::string filepath)
 
 void Texture::Bind(UINT slot)
 {
-	mDeviceContextRef->PSSetShaderResources(slot, 1, &mSRV);
+	if (mSRV)
+	{
+		mDeviceContextRef->PSSetShaderResources(slot, 1, &mSRV);
+	}
+	else
+	{
+		ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+		mDeviceContextRef->PSSetShaderResources(slot, 1, nullSRV);
+	}
 }
 

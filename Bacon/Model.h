@@ -24,6 +24,10 @@ public:
 	void Draw();
 	void Load(std::string filename);
 
+	void Position(glm::vec3 pos);
+	void Rotation(glm::vec3 axis, float angle);
+	void Scale(glm::vec3 scale);
+
 protected:
 	void Update();
 	void CreateUBO();

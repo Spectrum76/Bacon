@@ -3,6 +3,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 Model::Model(ID3D11Device* device, ID3D11DeviceContext* context) : mDeviceRef(device), mDeviceContextRef(context)
 {
 	mUniformBuffer = nullptr;
@@ -80,6 +82,27 @@ void Model::Load(std::string filename)
 
 		MeshComponent.push_back(std::make_pair(mesh, texture));
 	}
+}
+
+void Model::Position(glm::vec3 pos)
+{
+	mData.FModel = glm::translate(mData.FModel, pos);
+	mData.iModel = glm::inverse(mData.FModel);
+	Update();
+}
+
+void Model::Rotation(glm::vec3 axis, float angle)
+{
+	mData.FModel = glm::rotate(mData.FModel, angle, axis);
+	mData.iModel = glm::inverse(mData.FModel);
+	Update();
+}
+
+void Model::Scale(glm::vec3 scale)
+{
+	mData.FModel = glm::scale(mData.FModel, scale);
+	mData.iModel = glm::inverse(mData.FModel);
+	Update();
 }
 
 void Model::Update()
