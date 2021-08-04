@@ -11,6 +11,7 @@
 #include "Renderer.h"
 #include "Camera.h"
 #include "Model.h"
+#include "Scene.h"
 
 bool Keys[1024];
 
@@ -48,10 +49,12 @@ int main()
 
 	renderer.Init();
 
+	Scene scene = Scene(renderer.GetDevice(), renderer.GetContext());
+
 	Model cube = Model(renderer.GetDevice(), renderer.GetContext());
 	Camera camera = Camera(glfwGetWin32Window(window), renderer.GetDevice(), renderer.GetContext());
 
-	cube.Load("cube.obj");
+	cube.Load("Sphere.obj");
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -70,6 +73,8 @@ int main()
 		renderer.Render();
 
 		camera.Bind();
+
+		scene.Bind();
 
 		cube.Draw();
 

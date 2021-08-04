@@ -32,6 +32,7 @@ Camera::Camera(HWND hwnd, ID3D11Device* device, ID3D11DeviceContext* context) : 
 void Camera::Bind()
 {
 	mDeviceContextRef->VSSetConstantBuffers(1, 1, &mUniformBuffer);
+	mDeviceContextRef->PSSetConstantBuffers(0, 1, &mUniformBuffer);
 }
 
 void Camera::KeyControl(bool* keys, float deltaTime)
