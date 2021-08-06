@@ -5,9 +5,18 @@
 #include <d3d11.h>
 
 #include <glm/vec3.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "Model.h"
 
 #define NR_POINT_LIGHTS 4
 #define NR_SPOT_LIGHTS 4
+
+struct LightSpace
+{
+	glm::mat4 View;
+	glm::mat4 Proj;
+};
 
 struct DirLight
 {
@@ -52,7 +61,7 @@ public:
 	Scene(ID3D11Device* device, ID3D11DeviceContext* context);
 	~Scene();
 
-	void AddModel(std::string filename);
+	Model* AddModel(std::string filename);
 	void Draw();
 
 	void AddDirLight();
@@ -60,6 +69,7 @@ public:
 	void AddSpotLight();
 
 	void Bind();
+	void BindLSMatrix();
 
 protected:
 	void Update();
@@ -67,14 +77,19 @@ protected:
 
 private:
 
+	LightSpace LightSpaceData;
+
 	PointLight PointLights;
 
 	SpotLight SpotLights;
 
 	DirLight Sun;
 
+	std::vector<Model*> mSceneModels;
+
 	ID3D11Buffer* mPointLightsUB;
 	ID3D11Buffer* mSpotLightsUB;
+	ID3D11Buffer* mLightSpaceUB;
 	ID3D11Buffer* mSceneUB;
 
 	ID3D11Device* mDeviceRef;

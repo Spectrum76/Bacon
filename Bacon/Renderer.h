@@ -10,9 +10,11 @@ public:
 	~Renderer();
 
 	void Init();
-	void Render();
 	void Update();
 	void Destroy();
+
+	void ExecPrepass();
+	void ExecShadowPass();
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetContext();
@@ -20,8 +22,15 @@ public:
 protected:
 	void InitAPI();
 	void InitSwapChain();
-	void InitFrameBuffer();
-	void InitPipeline();
+
+	void InitPrepass();
+	void InitShadowPass();
+
+	void InitPrepassFB();
+	void InitPrepassPSO();
+
+	void InitShadowPassFB();
+	void InitShadowPassPSO();
 
 private:
 	HWND mHwnd;
@@ -44,11 +53,22 @@ private:
 	ID3D11DepthStencilView* mDSView;
 	ID3D11DepthStencilState* mDSState;
 
+	ID3D11Texture2D* mSHDMap;
+	ID3D11DepthStencilView* mSHDMapDSV;
+	ID3D11ShaderResourceView* mSHDMapSRV;
+
 	ID3D11InputLayout* mInputLayout;
 	ID3D11RasterizerState* mRasterState;
 	ID3D11SamplerState* mSamplerState;
 
-	ID3D11VertexShader* mVertexShader;
-	ID3D11PixelShader* mPixelShader;
+	ID3D11RasterizerState* mSHDRasterState;
+	ID3D11SamplerState* mSHDSamplerState;
+	ID3D11DepthStencilState* mSHDState;
+	D3D11_VIEWPORT mSHDViewport;
+
+	ID3D11VertexShader* mShadowVS;
+
+	ID3D11VertexShader* mForwardVS;
+	ID3D11PixelShader* mForwardPS;
 };
 

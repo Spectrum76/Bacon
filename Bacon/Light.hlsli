@@ -35,7 +35,7 @@ struct SpotLight
 	float quadratic;
 };
 
-float4 CalcDirectionalLight(DirLight light, float3 Normal, float3 PositionWS, float3 eye)
+float4 CalcDirectionalLight(DirLight light, float3 Normal, float3 PositionWS, float3 eye, float shadowFactor)
 {
 	float4 ambientColour = float4(light.colour, 1.0f) * light.ambientIntensity;
 
@@ -52,10 +52,10 @@ float4 CalcDirectionalLight(DirLight light, float3 Normal, float3 PositionWS, fl
         float specularFactor = dot(fragToEye, reflectedVertex);
         if (specularFactor > 0.0f)
         {
-            specularFactor = pow(specularFactor, 32);
-            specularColour = float4(light.colour * 1 * specularFactor, 1.0f);
+            specularFactor = pow(specularFactor, 4);
+            specularColour = float4(light.colour * 0.3f * specularFactor, 1.0f);
         }
     }
 	
-    return (ambientColour + diffuseColour + specularColour);
+    return (ambientColour + (1.0 - shadowFactor) * (diffuseColour + specularColour));
 }

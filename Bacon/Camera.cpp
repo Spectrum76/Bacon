@@ -5,9 +5,9 @@
 
 Camera::Camera(HWND hwnd, ID3D11Device* device, ID3D11DeviceContext* context) : mDeviceRef(device), mDeviceContextRef(context)
 {
-	position = glm::vec3(0.0f, 0.0f, 2.0f);
+	position = glm::vec3(15.0f, 2.0f, -0.65f);
 	worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	yaw = -90.0f;
+	yaw = 180.0f;
 	pitch = 0.0f;
 	front = glm::vec3(0.0f, 0.0f, -1.0f);
 

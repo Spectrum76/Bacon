@@ -10,7 +10,6 @@
 
 #include "Renderer.h"
 #include "Camera.h"
-#include "Model.h"
 #include "Scene.h"
 
 bool Keys[1024];
@@ -51,10 +50,11 @@ int main()
 
 	Scene scene = Scene(renderer.GetDevice(), renderer.GetContext());
 
-	Model cube = Model(renderer.GetDevice(), renderer.GetContext());
 	Camera camera = Camera(glfwGetWin32Window(window), renderer.GetDevice(), renderer.GetContext());
 
-	cube.Load("Sphere.obj");
+	scene.AddModel("Sphere.obj");
+	scene.AddModel("Crytek_Sponza_Blender.obj")->Scale(glm::vec3(0.3f));
+	scene.AddModel("Grid.obj")->Position(glm::vec3(0.0f, -1.0f, 0.0f));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -68,15 +68,23 @@ int main()
 		xChange = 0.0f;
 		yChange = 0.0f;
 
-		camera.CalculateViewMatrix();
+		renderer.ExecShadowPass();
 
-		renderer.Render();
+		scene.BindLSMatrix();
+
+		scene.Draw();
+
+		renderer.ExecPrepass();
+
+		camera.CalculateViewMatrix();
 
 		camera.Bind();
 
+		scene.BindLSMatrix();
+
 		scene.Bind();
 
-		cube.Draw();
+		scene.Draw();
 
 		renderer.Update();
 

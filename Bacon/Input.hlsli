@@ -4,6 +4,7 @@ struct PSInput
     float2 TexCoord     : TEXCOORD;
     float3 Normal       : NORMAL;
     float3 PositionWS   : POSITIONWS;
+    float4 LightSpace   : POSITIONLS;
 };
 
 struct VSInput
