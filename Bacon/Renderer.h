@@ -15,6 +15,7 @@ public:
 
 	void ExecPrepass();
 	void ExecShadowPass();
+	void ExecGBufferPass();
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetContext();
@@ -25,12 +26,16 @@ protected:
 
 	void InitPrepass();
 	void InitShadowPass();
+	void InitGBufferPass();
 
 	void InitPrepassFB();
 	void InitPrepassPSO();
 
 	void InitShadowPassFB();
 	void InitShadowPassPSO();
+
+	void InitGBufferPassFB();
+	void InitGBufferPassPSO();
 
 private:
 	HWND mHwnd;
@@ -48,6 +53,12 @@ private:
 
 	ID3D11Texture2D* mRenderTarget;
 	ID3D11RenderTargetView* mRTV;
+
+	ID3D11Texture2D* gAlbedo;
+	ID3D11Texture2D* gNormal;
+
+	ID3D11RenderTargetView* gAlbedoRTV;
+	ID3D11RenderTargetView* gNormalRTV;
 
 	ID3D11Texture2D* mDSBuffer;
 	ID3D11DepthStencilView* mDSView;
@@ -67,6 +78,9 @@ private:
 	D3D11_VIEWPORT mSHDViewport;
 
 	ID3D11VertexShader* mShadowVS;
+
+	ID3D11VertexShader* mGBufferVS;
+	ID3D11PixelShader* mGBufferPS;
 
 	ID3D11VertexShader* mForwardVS;
 	ID3D11PixelShader* mForwardPS;

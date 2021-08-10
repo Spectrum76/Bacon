@@ -35,6 +35,7 @@ void Renderer::Init()
 	InitSwapChain();
 	InitPrepass();
 	InitShadowPass();
+	InitGBufferPass();
 }
 
 void Renderer::ExecPrepass()
@@ -111,6 +112,32 @@ void Renderer::ExecShadowPass()
 	mDeviceContext->ClearDepthStencilView(mSHDMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
+void Renderer::ExecGBufferPass()
+{
+	mDeviceContext->VSSetShader(mGBufferVS, 0, 0);
+	mDeviceContext->PSSetShader(mGBufferPS, 0, 0);
+
+	mDeviceContext->PSSetSamplers(0, 1, &mSamplerState);
+
+	mDeviceContext->IASetInputLayout(mInputLayout);
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	mDeviceContext->RSSetViewports(1, &mViewport);
+	mDeviceContext->RSSetState(mRasterState);
+
+	ID3D11RenderTargetView* RTVs[2] = { gAlbedoRTV, gNormalRTV };
+
+	mDeviceContext->OMSetRenderTargets(2, RTVs, mDSView);
+	mDeviceContext->OMSetDepthStencilState(mDSState, 1);
+
+	const float clearColor[] = { 0.5f, 0.7f, 1.0f, 1.0f };
+	const float clearBuffr[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	
+	mDeviceContext->ClearRenderTargetView(gAlbedoRTV, clearColor);
+	mDeviceContext->ClearRenderTargetView(gNormalRTV, clearBuffr);
+	mDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
 ID3D11Device* Renderer::GetDevice()
 {
 	return mDevice;
@@ -163,6 +190,12 @@ void Renderer::InitShadowPass()
 {
 	InitShadowPassFB();
 	InitShadowPassPSO();
+}
+
+void Renderer::InitGBufferPass()
+{
+	InitGBufferPassFB();
+	InitGBufferPassPSO();
 }
 
 void Renderer::InitPrepassFB()
@@ -294,4 +327,33 @@ void Renderer::InitShadowPassPSO()
 
 	auto VSBytecode = Read("ShadowVS.cso");
 	mDevice->CreateVertexShader(VSBytecode.data(), VSBytecode.size(), nullptr, &mShadowVS);
+}
+
+void Renderer::InitGBufferPassFB()
+{
+	D3D11_TEXTURE2D_DESC desc = {};
+	desc.Width = mWindowWidth;
+	desc.Height = mWindowHeight;
+	desc.MipLevels = 0;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc.CPUAccessFlags = 0;
+
+	mDevice->CreateTexture2D(&desc, nullptr, &gAlbedo);
+	mDevice->CreateTexture2D(&desc, nullptr, &gNormal);
+
+	mDevice->CreateRenderTargetView(gAlbedo, nullptr, &gAlbedoRTV);
+	mDevice->CreateRenderTargetView(gNormal, nullptr, &gNormalRTV);
+}
+
+void Renderer::InitGBufferPassPSO()
+{
+	auto VSBytecode = Read("GBufferVS.cso");
+	auto PSBytecode = Read("GBufferPS.cso");
+
+	mDevice->CreateVertexShader(VSBytecode.data(), VSBytecode.size(), nullptr, &mGBufferVS);
+	mDevice->CreatePixelShader(PSBytecode.data(), PSBytecode.size(), nullptr, &mGBufferPS);
 }

@@ -76,12 +76,21 @@
     <FxCompile Include="ShadowVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="GBufferVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="GBufferPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Input.hlsli">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Light.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Normal.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -53,7 +53,7 @@ int main()
 	Camera camera = Camera(glfwGetWin32Window(window), renderer.GetDevice(), renderer.GetContext());
 
 	scene.AddModel("Sphere.obj");
-	scene.AddModel("Crytek_Sponza_Blender.obj")->Scale(glm::vec3(0.3f));
+	scene.AddModel("Dabrovic_Sponza.obj");
 	scene.AddModel("Grid.obj")->Position(glm::vec3(0.0f, -1.0f, 0.0f));
 
 	while (!glfwWindowShouldClose(window))
@@ -83,6 +83,12 @@ int main()
 		scene.BindLSMatrix();
 
 		scene.Bind();
+
+		scene.Draw();
+
+		renderer.ExecGBufferPass();
+
+		camera.Bind();
 
 		scene.Draw();
 
