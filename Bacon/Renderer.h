@@ -13,7 +13,7 @@ public:
 	void Update();
 	void Destroy();
 
-	void ExecPrepass();
+	void ExecForwardPass();
 	void ExecShadowPass();
 	void ExecGBufferPass();
 
@@ -24,12 +24,12 @@ protected:
 	void InitAPI();
 	void InitSwapChain();
 
-	void InitPrepass();
+	void InitForwardPass();
 	void InitShadowPass();
 	void InitGBufferPass();
 
-	void InitPrepassFB();
-	void InitPrepassPSO();
+	void InitForwardPassFB();
+	void InitForwardPassPSO();
 
 	void InitShadowPassFB();
 	void InitShadowPassPSO();

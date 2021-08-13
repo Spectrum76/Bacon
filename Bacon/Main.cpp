@@ -74,7 +74,7 @@ int main()
 
 		scene.Draw();
 
-		renderer.ExecPrepass();
+		renderer.ExecForwardPass();
 
 		camera.CalculateViewMatrix();
 

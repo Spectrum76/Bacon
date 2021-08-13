@@ -33,12 +33,12 @@ void Renderer::Init()
 {
 	InitAPI();
 	InitSwapChain();
-	InitPrepass();
+	InitForwardPass();
 	InitShadowPass();
 	InitGBufferPass();
 }
 
-void Renderer::ExecPrepass()
+void Renderer::ExecForwardPass()
 {
 	mDeviceContext->VSSetShader(mForwardVS, 0, 0);
 	mDeviceContext->PSSetShader(mForwardPS, 0, 0);
@@ -130,11 +130,10 @@ void Renderer::ExecGBufferPass()
 	mDeviceContext->OMSetRenderTargets(2, RTVs, mDSView);
 	mDeviceContext->OMSetDepthStencilState(mDSState, 1);
 
-	const float clearColor[] = { 0.5f, 0.7f, 1.0f, 1.0f };
-	const float clearBuffr[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	const float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	
 	mDeviceContext->ClearRenderTargetView(gAlbedoRTV, clearColor);
-	mDeviceContext->ClearRenderTargetView(gNormalRTV, clearBuffr);
+	mDeviceContext->ClearRenderTargetView(gNormalRTV, clearColor);
 	mDeviceContext->ClearDepthStencilView(mDSView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
@@ -180,10 +179,10 @@ void Renderer::InitSwapChain()
 	mFactory->CreateSwapChainForHwnd(mDevice, mHwnd, &swapchainDesc, nullptr, nullptr, &mSwapchain);
 }
 
-void Renderer::InitPrepass()
+void Renderer::InitForwardPass()
 {
-	InitPrepassFB();
-	InitPrepassPSO();
+	InitForwardPassFB();
+	InitForwardPassPSO();
 }
 
 void Renderer::InitShadowPass()
@@ -198,7 +197,7 @@ void Renderer::InitGBufferPass()
 	InitGBufferPassPSO();
 }
 
-void Renderer::InitPrepassFB()
+void Renderer::InitForwardPassFB()
 {
 	mSwapchain->GetBuffer(0, IID_PPV_ARGS(&mRenderTarget));
 
@@ -225,7 +224,7 @@ void Renderer::InitPrepassFB()
 	mDevice->CreateDepthStencilView(mDSBuffer, &descDSV, &mDSView);
 }
 
-void Renderer::InitPrepassPSO()
+void Renderer::InitForwardPassPSO()
 {
 	D3D11_INPUT_ELEMENT_DESC inputElementDescs[] =
 	{
