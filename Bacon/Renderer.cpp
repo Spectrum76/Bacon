@@ -249,9 +249,28 @@ void Renderer::InitForwardPassPSO()
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	D3D11_DEPTH_STENCIL_DESC dssDesc{};
+
+	// Depth test parameters
 	dssDesc.DepthEnable = true;
 	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dssDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	// Stencil test parameters
+	dssDesc.StencilEnable = true;
+	dssDesc.StencilReadMask = 0xFF;
+	dssDesc.StencilWriteMask = 0xFF;
+
+	// Stencil operations if pixel is front-facing
+	dssDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dssDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dssDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+	dssDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing
+	dssDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dssDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dssDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+	dssDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	mDevice->CreateDepthStencilState(&dssDesc, &mDSState);
 
