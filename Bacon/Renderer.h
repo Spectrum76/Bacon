@@ -27,15 +27,7 @@ protected:
 	void InitPipeline();
 	void InitFrameBuffer();
 
-	void InitForwardPass();
 	void InitShadowPass();
-	void InitGBufferPass();
-
-	void InitShadowPassFB();
-	void InitShadowPassPSO();
-
-	void InitGBufferPassFB();
-	void InitGBufferPassPSO();
 
 private:
 	HWND mHwnd;

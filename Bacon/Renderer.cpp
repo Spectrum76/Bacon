@@ -37,9 +37,7 @@ void Renderer::Init()
 	InitPipeline();
 	InitFrameBuffer();
 
-	InitForwardPass();
 	InitShadowPass();
-	InitGBufferPass();
 }
 
 void Renderer::ExecForwardPass()
@@ -208,16 +206,7 @@ void Renderer::InitPipeline()
 	mDevice->CreateDepthStencilState(&dssDesc, &mDepthSState);
 	mDevice->CreateSamplerState(&samplerDesc, &mSamplerState);
 	mDevice->CreateRasterizerState(&rasterDesc, &mRasterState);
-}
 
-void Renderer::InitFrameBuffer()
-{
-	mSwapchain->GetBuffer(0, IID_PPV_ARGS(&mRenderTarget));
-	mDevice->CreateRenderTargetView(mRenderTarget, nullptr, &mRTV);
-}
-
-void Renderer::InitForwardPass()
-{
 	D3D11_INPUT_ELEMENT_DESC inputElementDescs[] =
 	{
 	  { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -225,91 +214,26 @@ void Renderer::InitForwardPass()
 	  { "NORMAL",	0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	auto VSBytecode = Read("ForwardVS.cso");
-	auto PSBytecode = Read("ForwardPS.cso");
+	auto FVSBytecode = Read("ForwardVS.cso");
+	auto FPSBytecode = Read("ForwardPS.cso");
 
-	mDevice->CreateVertexShader(VSBytecode.data(), VSBytecode.size(), nullptr, &mForwardVS);
-	mDevice->CreatePixelShader(PSBytecode.data(), PSBytecode.size(), nullptr, &mForwardPS);
+	auto GVSBytecode = Read("GBufferVS.cso");
+	auto GPSBytecode = Read("GBufferPS.cso");
 
-	mDevice->CreateInputLayout(inputElementDescs, _countof(inputElementDescs), VSBytecode.data(), VSBytecode.size(), &mInputLayout);
+	mDevice->CreateVertexShader(GVSBytecode.data(), GVSBytecode.size(), nullptr, &mGBufferVS);
+	mDevice->CreatePixelShader(GPSBytecode.data(), GPSBytecode.size(), nullptr, &mGBufferPS);
+
+	mDevice->CreateVertexShader(FVSBytecode.data(), FVSBytecode.size(), nullptr, &mForwardVS);
+	mDevice->CreatePixelShader(FPSBytecode.data(), FPSBytecode.size(), nullptr, &mForwardPS);
+
+	mDevice->CreateInputLayout(inputElementDescs, _countof(inputElementDescs), FVSBytecode.data(), FVSBytecode.size(), &mInputLayout);
 }
 
-void Renderer::InitShadowPass()
+void Renderer::InitFrameBuffer()
 {
-	InitShadowPassFB();
-	InitShadowPassPSO();
-}
+	mSwapchain->GetBuffer(0, IID_PPV_ARGS(&mRenderTarget));
+	mDevice->CreateRenderTargetView(mRenderTarget, nullptr, &mRTV);
 
-void Renderer::InitGBufferPass()
-{
-	InitGBufferPassFB();
-	InitGBufferPassPSO();
-}
-
-void Renderer::InitShadowPassFB()
-{
-	D3D11_TEXTURE2D_DESC dSDesc{};
-	dSDesc.Width = 4096;
-	dSDesc.Height = 4096;
-	dSDesc.MipLevels = 1;
-	dSDesc.ArraySize = 1;
-	dSDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-	dSDesc.SampleDesc.Count = 1;
-	dSDesc.SampleDesc.Quality = 0;
-	dSDesc.Usage = D3D11_USAGE_DEFAULT;
-	dSDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-
-	mDevice->CreateTexture2D(&dSDesc, nullptr, &mSHDMap);
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV{};
-	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	descDSV.Texture2D.MipSlice = 0;
-
-	mDevice->CreateDepthStencilView(mSHDMap, &descDSV, &mSHDMapDSV);
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.MipLevels = 1;
-
-	mDevice->CreateShaderResourceView(mSHDMap, &srvDesc, &mSHDMapSRV);
-}
-
-void Renderer::InitShadowPassPSO()
-{
-	D3D11_RASTERIZER_DESC rasterDesc{};
-	rasterDesc.CullMode = D3D11_CULL_NONE;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-
-	D3D11_SAMPLER_DESC samplerDesc{};
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MinLOD = 0.0f;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	D3D11_DEPTH_STENCIL_DESC dssDesc{};
-	dssDesc.DepthEnable = true;
-	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	dssDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	mDevice->CreateDepthStencilState(&dssDesc, &mSHDState);
-
-	mDevice->CreateSamplerState(&samplerDesc, &mSHDSamplerState);
-	mDevice->CreateRasterizerState(&rasterDesc, &mSHDRasterState);
-
-	auto VSBytecode = Read("ShadowVS.cso");
-	mDevice->CreateVertexShader(VSBytecode.data(), VSBytecode.size(), nullptr, &mShadowVS);
-}
-
-void Renderer::InitGBufferPassFB()
-{
 	D3D11_TEXTURE2D_DESC desc = {};
 	desc.Width = mWindowWidth;
 	desc.Height = mWindowHeight;
@@ -356,11 +280,58 @@ void Renderer::InitGBufferPassFB()
 	mDevice->CreateShaderResourceView(gDepth, &srvDesc, &gDepthSRV);
 }
 
-void Renderer::InitGBufferPassPSO()
+void Renderer::InitShadowPass()
 {
-	auto VSBytecode = Read("GBufferVS.cso");
-	auto PSBytecode = Read("GBufferPS.cso");
+	D3D11_TEXTURE2D_DESC dSDesc{};
+	dSDesc.Width = 4096;
+	dSDesc.Height = 4096;
+	dSDesc.MipLevels = 1;
+	dSDesc.ArraySize = 1;
+	dSDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	dSDesc.SampleDesc.Count = 1;
+	dSDesc.SampleDesc.Quality = 0;
+	dSDesc.Usage = D3D11_USAGE_DEFAULT;
+	dSDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 
-	mDevice->CreateVertexShader(VSBytecode.data(), VSBytecode.size(), nullptr, &mGBufferVS);
-	mDevice->CreatePixelShader(PSBytecode.data(), PSBytecode.size(), nullptr, &mGBufferPS);
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV{};
+	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	mDevice->CreateTexture2D(&dSDesc, nullptr, &mSHDMap);
+	mDevice->CreateDepthStencilView(mSHDMap, &descDSV, &mSHDMapDSV);
+	mDevice->CreateShaderResourceView(mSHDMap, &srvDesc, &mSHDMapSRV);
+
+	D3D11_RASTERIZER_DESC rasterDesc{};
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+
+	D3D11_SAMPLER_DESC samplerDesc{};
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	D3D11_DEPTH_STENCIL_DESC dssDesc{};
+	dssDesc.DepthEnable = true;
+	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dssDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	mDevice->CreateDepthStencilState(&dssDesc, &mSHDState);
+	mDevice->CreateSamplerState(&samplerDesc, &mSHDSamplerState);
+	mDevice->CreateRasterizerState(&rasterDesc, &mSHDRasterState);
+
+	auto VSBytecode = Read("ShadowVS.cso");
+	mDevice->CreateVertexShader(VSBytecode.data(), VSBytecode.size(), nullptr, &mShadowVS);
 }
