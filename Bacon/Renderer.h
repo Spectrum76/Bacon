@@ -60,6 +60,9 @@ private:
 	ID3D11RenderTargetView* gAlbedoRTV;
 	ID3D11RenderTargetView* gNormalRTV;
 
+	ID3D11ShaderResourceView* gAlbedoSRV;
+	ID3D11ShaderResourceView* gNormalSRV;
+
 	ID3D11Texture2D* mDSBuffer;
 	ID3D11DepthStencilView* mDSView;
 	ID3D11DepthStencilState* mDSState;

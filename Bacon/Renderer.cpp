@@ -365,6 +365,9 @@ void Renderer::InitGBufferPassFB()
 
 	mDevice->CreateRenderTargetView(gAlbedo, nullptr, &gAlbedoRTV);
 	mDevice->CreateRenderTargetView(gNormal, nullptr, &gNormalRTV);
+
+	mDevice->CreateShaderResourceView(gAlbedo, nullptr, &gAlbedoSRV);
+	mDevice->CreateShaderResourceView(gNormal, nullptr, &gNormalSRV);
 }
 
 void Renderer::InitGBufferPassPSO()
