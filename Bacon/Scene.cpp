@@ -37,12 +37,12 @@ void Scene::Draw()
 void Scene::AddDirLight()
 {
 	Sun.colour = glm::vec3(1.0f, 1.0f, 1.0f);
-	Sun.direction = glm::vec3(0.0f, -25.0f, 0.0f);
+	Sun.direction = glm::vec3(0.0f, -50.0f, 0.0f);
 	Sun.ambientIntensity = 0.3f;
 	Sun.diffuseIntensity = 0.5f;
 
-	float near_plane = 0.0f, far_plane = 25.5f;
-	LightSpaceData.Proj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	float near_plane = 0.0f, far_plane = 55.5f;
+	LightSpaceData.Proj = glm::ortho(-18.0f, 18.0f, -18.0f, 18.0f, near_plane, far_plane);
 	LightSpaceData.View = glm::lookAt(-Sun.direction, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 }
 

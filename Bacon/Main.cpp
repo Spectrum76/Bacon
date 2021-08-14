@@ -52,7 +52,7 @@ int main()
 
 	Camera camera = Camera(glfwGetWin32Window(window), renderer.GetDevice(), renderer.GetContext());
 
-	scene.AddModel("Sphere.obj");
+	scene.AddModel("Sphere.obj")->Position(glm::vec3(0.0f, 5.0f, 0.0f));
 	scene.AddModel("Dabrovic_Sponza.obj");
 	scene.AddModel("Grid.obj")->Position(glm::vec3(0.0f, -1.0f, 0.0f));
 

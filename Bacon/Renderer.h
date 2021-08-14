@@ -24,12 +24,12 @@ protected:
 	void InitAPI();
 	void InitSwapChain();
 
+	void InitPipeline();
+	void InitFrameBuffer();
+
 	void InitForwardPass();
 	void InitShadowPass();
 	void InitGBufferPass();
-
-	void InitForwardPassFB();
-	void InitForwardPassPSO();
 
 	void InitShadowPassFB();
 	void InitShadowPassPSO();
@@ -56,24 +56,24 @@ private:
 
 	ID3D11Texture2D* gAlbedo;
 	ID3D11Texture2D* gNormal;
+	ID3D11Texture2D* gDepth;
 
 	ID3D11RenderTargetView* gAlbedoRTV;
 	ID3D11RenderTargetView* gNormalRTV;
+	ID3D11DepthStencilView* gDepthView;
 
 	ID3D11ShaderResourceView* gAlbedoSRV;
 	ID3D11ShaderResourceView* gNormalSRV;
+	ID3D11ShaderResourceView* gDepthSRV;
 
-	ID3D11Texture2D* mDSBuffer;
-	ID3D11DepthStencilView* mDSView;
-	ID3D11DepthStencilState* mDSState;
+	ID3D11InputLayout* mInputLayout;
+	ID3D11SamplerState* mSamplerState;
+	ID3D11RasterizerState* mRasterState;
+	ID3D11DepthStencilState* mDepthSState;
 
 	ID3D11Texture2D* mSHDMap;
 	ID3D11DepthStencilView* mSHDMapDSV;
 	ID3D11ShaderResourceView* mSHDMapSRV;
-
-	ID3D11InputLayout* mInputLayout;
-	ID3D11RasterizerState* mRasterState;
-	ID3D11SamplerState* mSamplerState;
 
 	ID3D11RasterizerState* mSHDRasterState;
 	ID3D11SamplerState* mSHDSamplerState;
